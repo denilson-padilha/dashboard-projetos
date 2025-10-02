@@ -228,22 +228,27 @@
                     <div class="form-group">
                         <label class="form-label">Nome da Empresa <span style="color: #dc3545;">*</span></label>
                         <input type="text" class="form-control" id="companyName" required>
+                        <div class="invalid-feedback">Nome da empresa é obrigatório</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">CNPJ <span style="color: #dc3545;">*</span></label>
-                        <input type="text" class="form-control" id="companyCnpj" required maxlength="18" placeholder="00.000.000/0000-00">
+                        <input type="text" class="form-control" id="companyCnpj" required maxlength="18" placeholder="00.000.000/0000-00" oninput="formatCNPJ(this)">
+                        <div class="invalid-feedback">CNPJ é obrigatório e deve estar no formato válido</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Contato Responsável <span style="color: #dc3545;">*</span></label>
                         <input type="text" class="form-control" id="companyContact" required>
+                        <div class="invalid-feedback">Contato responsável é obrigatório</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" id="companyEmail" placeholder="exemplo@empresa.com.br">
+                        <input type="email" class="form-control" id="companyEmail" placeholder="exemplo@empresa.com.br" onblur="validateEmail(this)">
+                        <div class="invalid-feedback">Email deve estar em formato válido</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Telefone</label>
-                        <input type="text" class="form-control" id="companyPhone" maxlength="15" placeholder="(00) 00000-0000">
+                        <input type="text" class="form-control" id="companyPhone" maxlength="15" placeholder="(00) 00000-0000" oninput="formatPhone(this)">
+                        <div class="invalid-feedback">Telefone deve estar em formato válido</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Endereço</label>
@@ -252,9 +257,11 @@
                     <div class="form-group">
                         <label class="form-label">Status <span style="color: #dc3545;">*</span></label>
                         <select class="form-control" id="companyStatus" required>
+                            <option value="">Selecione um status</option>
                             <option value="Ativo">Ativo</option>
                             <option value="Inativo">Inativo</option>
                         </select>
+                        <div class="invalid-feedback">Status é obrigatório</div>
                     </div>
                 </form>
             </div>
@@ -282,10 +289,12 @@
                         <select class="form-control" id="projectCompany" required>
                             <option value="">Selecione uma empresa</option>
                         </select>
+                        <div class="invalid-feedback">Empresa é obrigatória</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Nome do Projeto <span style="color: #dc3545;">*</span></label>
                         <input type="text" class="form-control" id="projectName" required>
+                        <div class="invalid-feedback">Nome do projeto é obrigatório</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Descrição</label>
@@ -294,6 +303,7 @@
                     <div class="form-group">
                         <label class="form-label">Owner/Responsável <span style="color: #dc3545;">*</span></label>
                         <input type="text" class="form-control" id="projectOwner" required>
+                        <div class="invalid-feedback">Owner/Responsável é obrigatório</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Área Responsável <span style="color: #dc3545;">*</span></label>
@@ -306,21 +316,25 @@
                             <option value="Cliente">Cliente</option>
                             <option value="Usabilidade">Usabilidade</option>
                         </select>
+                        <div class="invalid-feedback">Área responsável é obrigatória</div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Data de Início <span style="color: #dc3545;">*</span></label>
-                            <input type="date" class="form-control" id="projectStartDate" required>
+                            <input type="date" class="form-control" id="projectStartDate" required onchange="validateDates()">
+                            <div class="invalid-feedback">Data de início é obrigatória</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Data de Fim <span style="color: #dc3545;">*</span></label>
-                            <input type="date" class="form-control" id="projectEndDate" required>
+                            <input type="date" class="form-control" id="projectEndDate" required onchange="validateDates()">
+                            <div class="invalid-feedback">Data de fim é obrigatória e deve ser posterior à data de início</div>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Status <span style="color: #dc3545;">*</span></label>
                             <select class="form-control" id="projectStatus" required>
+                                <option value="">Selecione um status</option>
                                 <option value="Aguardando início">Aguardando início</option>
                                 <option value="Em Análise">Em Análise</option>
                                 <option value="Andamento">Andamento</option>
@@ -328,14 +342,17 @@
                                 <option value="Concluída">Concluída</option>
                                 <option value="Declinada">Declinada</option>
                             </select>
+                            <div class="invalid-feedback">Status é obrigatório</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Prioridade <span style="color: #dc3545;">*</span></label>
                             <select class="form-control" id="projectPriority" required>
+                                <option value="">Selecione uma prioridade</option>
                                 <option value="Baixa">Baixa</option>
                                 <option value="Média">Média</option>
                                 <option value="Alta">Alta</option>
                             </select>
+                            <div class="invalid-feedback">Prioridade é obrigatória</div>
                         </div>
                     </div>
                     <div class="form-group">

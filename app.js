@@ -1,3 +1,167 @@
+// VALIDATION AND FORMATTING FUNCTIONS
+function formatCNPJ(input) {
+    let value = input.value.replace(/\D/g, '');
+    
+    if (value.length <= 14) {
+        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        value = value.replace(/(\d{4})(\d)/, '$1-$2');
+    }
+    
+    input.value = value;
+    validateCNPJ(input);
+}
+
+function validateCNPJ(input) {
+    const cnpj = input.value.replace(/\D/g, '');
+    const isValid = cnpj.length === 14 && validateCNPJDigits(cnpj);
+    
+    if (input.value && !isValid) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+    } else if (input.value) {
+        input.classList.add('is-valid');
+        input.classList.remove('is-invalid');
+    } else {
+        input.classList.remove('is-invalid', 'is-valid');
+    }
+    
+    return isValid;
+}
+
+function validateCNPJDigits(cnpj) {
+    if (cnpj.length !== 14) return false;
+    
+    // Elimina CNPJs conhecidos como inválidos
+    if (/^(\d)\1+$/.test(cnpj)) return false;
+    
+    // Validação do primeiro dígito
+    let length = cnpj.length - 2;
+    let numbers = cnpj.substring(0, length);
+    let digits = cnpj.substring(length);
+    let sum = 0;
+    let pos = length - 7;
+    
+    for (let i = length; i >= 1; i--) {
+        sum += numbers.charAt(length - i) * pos--;
+        if (pos < 2) pos = 9;
+    }
+    
+    let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+    if (result != digits.charAt(0)) return false;
+    
+    // Validação do segundo dígito
+    length = length + 1;
+    numbers = cnpj.substring(0, length);
+    sum = 0;
+    pos = length - 7;
+    
+    for (let i = length; i >= 1; i--) {
+        sum += numbers.charAt(length - i) * pos--;
+        if (pos < 2) pos = 9;
+    }
+    
+    result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+    if (result != digits.charAt(1)) return false;
+    
+    return true;
+}
+
+function formatPhone(input) {
+    let value = input.value.replace(/\D/g, '');
+    
+    if (value.length <= 11) {
+        if (value.length <= 10) {
+            // Telefone fixo: (XX) XXXX-XXXX
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            // Celular: (XX) XXXXX-XXXX
+            value = value.replace(/^(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+    }
+    
+    input.value = value;
+}
+
+function validateEmail(input) {
+    const email = input.value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (email && !emailRegex.test(email)) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+    } else if (email) {
+        input.classList.add('is-valid');
+        input.classList.remove('is-invalid');
+    } else {
+        input.classList.remove('is-invalid', 'is-valid');
+    }
+}
+
+function validateDates() {
+    const startDate = document.getElementById('projectStartDate');
+    const endDate = document.getElementById('projectEndDate');
+    
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        
+        if (end <= start) {
+            endDate.classList.add('is-invalid');
+            endDate.classList.remove('is-valid');
+            startDate.classList.add('is-invalid');
+            startDate.classList.remove('is-valid');
+        } else {
+            endDate.classList.add('is-valid');
+            endDate.classList.remove('is-invalid');
+            startDate.classList.add('is-valid');
+            startDate.classList.remove('is-invalid');
+        }
+    }
+}
+
+function validateForm(formId) {
+    const form = document.getElementById(formId);
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    let isValid = true;
+    
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            input.classList.remove('is-valid');
+            isValid = false;
+        } else {
+            // Validações específicas
+            if (input.type === 'email') {
+                validateEmail(input);
+                if (input.classList.contains('is-invalid')) isValid = false;
+            } else if (input.id === 'companyCnpj') {
+                validateCNPJ(input);
+                if (input.classList.contains('is-invalid')) isValid = false;
+            } else {
+                input.classList.add('is-valid');
+                input.classList.remove('is-invalid');
+            }
+        }
+    });
+    
+    // Validação específica para datas em projetos
+    if (formId === 'projectForm') {
+        validateDates();
+        const startDate = document.getElementById('projectStartDate');
+        const endDate = document.getElementById('projectEndDate');
+        
+        if (startDate.classList.contains('is-invalid') || endDate.classList.contains('is-invalid')) {
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
 // SUPABASE CREDENTIALS AND INITIALIZATION
 const SUPABASE_URL = 'https://inovtsxfompeampwgroh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlub3Z0c3hmb21wZWFtcHdncm9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNTMxMzUsImV4cCI6MjA3NDkyOTEzNX0.MosSJ7VM4KblH6z3okpOuKbwuIH6DbB3_cwtIfXCVBU';
@@ -572,6 +736,7 @@ function updateRecentProjects() {
                 <td>${company ? company.name : 'N/A'}</td>
                 <td><span class="status-badge ${getStatusClass(project.status)}">${project.status}</span></td>
                 <td>${project.area || 'N/A'}</td>
+                <td>${formatDate(project.start_date)}</td>
                 <td>${formatDate(project.end_date)}</td>
             </tr>
         `;
@@ -641,6 +806,11 @@ function openCompanyModal(id = null) {
     
     currentCompanyId = id;
     
+    // Limpar validações anteriores
+    form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+        el.classList.remove('is-valid', 'is-invalid');
+    });
+    
     if (id) {
         const company = companies.find(c => c.id === id);
         title.textContent = 'Editar Empresa';
@@ -656,7 +826,7 @@ function openCompanyModal(id = null) {
     } else {
         title.textContent = 'Nova Empresa';
         form.reset();
-        document.getElementById('companyStatus').value = 'Ativo';
+        document.getElementById('companyStatus').value = '';
     }
     
     modal.classList.remove('hidden');
@@ -669,6 +839,12 @@ function closeCompanyModal() {
 }
 
 async function saveCompany() {
+    // Validar formulário antes de salvar
+    if (!validateForm('companyForm')) {
+        showToast('Por favor, corrija os campos em vermelho antes de continuar.', 'error');
+        return;
+    }
+    
     const form = document.getElementById('companyForm');
     if (!form.checkValidity()) {
         showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
@@ -761,6 +937,7 @@ async function loadProjectsTable() {
                     <td><span class="status-badge ${getStatusClass(project.status)}">${project.status}</span></td>
                     <td>${project.area || 'N/A'}</td>
                     <td><span class="priority-badge ${getPriorityClass(project.priority)}">${project.priority}</span></td>
+                    <td>${formatDate(project.start_date)}</td>
                     <td>${formatDate(project.end_date)}</td>
                     <td>
                         <button class="btn-action edit" onclick="editProject(${project.id})">
@@ -788,6 +965,11 @@ function openProjectModal(id = null) {
     
     currentProjectId = id;
     
+    // Limpar validações anteriores
+    form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+        el.classList.remove('is-valid', 'is-invalid');
+    });
+    
     if (id) {
         const project = projects.find(p => p.id === id);
         title.textContent = 'Editar Projeto';
@@ -807,8 +989,8 @@ function openProjectModal(id = null) {
     } else {
         title.textContent = 'Novo Projeto';
         form.reset();
-        document.getElementById('projectStatus').value = 'Aguardando início';
-        document.getElementById('projectPriority').value = 'Média';
+        document.getElementById('projectStatus').value = '';
+        document.getElementById('projectPriority').value = '';
     }
     
     modal.classList.remove('hidden');
@@ -821,6 +1003,12 @@ function closeProjectModal() {
 }
 
 async function saveProject() {
+    // Validar formulário antes de salvar
+    if (!validateForm('projectForm')) {
+        showToast('Por favor, corrija os campos em vermelho antes de continuar.', 'error');
+        return;
+    }
+    
     const form = document.getElementById('projectForm');
     if (!form.checkValidity()) {
         showToast('Por favor, preencha todos os campos obrigatórios.', 'error');
