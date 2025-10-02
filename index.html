@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditto - Sistema de Gestão de Projetos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-chart-line me-2"></i>Auditto</h3>
+            <button class="btn-theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link active" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link" data-page="empresas">
+                <i class="fas fa-building"></i>
+                <span>Empresas</span>
+            </a>
+            <a href="#" class="nav-link" data-page="projetos">
+                <i class="fas fa-project-diagram"></i>
+                <span>Projetos</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="header">
+            <button class="btn-toggle-sidebar" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
+
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page active">
+                <div class="dashboard-filters mb-4">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <select class="form-control" id="companyFilter">
+                                <option value="">Todas as Empresas</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <input type="date" class="form-control" id="startDateFilter" placeholder="Data início">
+                        </div>
+                        <div class="filter-group">
+                            <input type="date" class="form-control" id="endDateFilter" placeholder="Data fim">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-cards">
+                    <div class="cards-row mb-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalCompanies">0</h3>
+                                <p>Total de Empresas</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-info">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalProjects">0</h3>
+                                <p>Total de Projetos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="activeProjects">0</h3>
+                                <p>Projetos Ativos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="completedProjects">0</h3>
+                                <p>Projetos Concluídos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <div class="card">
+                            <div class="card__body">
+                                <h5 class="card-title">Status dos Projetos</h5>
+                                <div style="position: relative; height: 300px;">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="card">
+                            <div class="card__body">
+                                <h5 class="card-title">Projetos por Área</h5>
+                                <div style="position: relative; height: 300px;">
+                                    <canvas id="areaChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card__body">
+                        <h5 class="card-title">Projetos Recentes</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Projeto</th>
+                                        <th>Empresa</th>
+                                        <th>Status</th>
+                                        <th>Área</th>
+                                        <th>Data Início</th>
+                                        <th>Data Fim</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentProjectsTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empresas Page -->
+            <div id="empresasPage" class="page">
+                <div class="page-header">
+                    <h2>Gestão de Empresas</h2>
+                    <button class="btn btn--primary" onclick="openCompanyModal()">
+                        <i class="fas fa-plus"></i> Nova Empresa
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card__body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>CNPJ</th>
+                                        <th>Contato</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="companiesTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projetos Page -->
+            <div id="projetosPage" class="page">
+                <div class="page-header">
+                    <h2>Gestão de Projetos</h2>
+                    <button class="btn btn--primary" onclick="openProjectModal()">
+                        <i class="fas fa-plus"></i> Novo Projeto
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card__body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Empresa</th>
+                                        <th>Status</th>
+                                        <th>Área</th>
+                                        <th>Prioridade</th>
+                                        <th>Data Início</th>
+                                        <th>Data Fim</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projectsTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Modal -->
+    <div class="modal hidden" id="companyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="companyModalTitle">Nova Empresa</h5>
+                <button class="btn-close" onclick="closeCompanyModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="companyForm">
+                    <input type="hidden" id="companyId">
+                    <div class="form-group">
+                        <label class="form-label">Nome da Empresa <span style="color: #dc3545;">*</span></label>
+                        <input type="text" class="form-control" id="companyName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CNPJ <span style="color: #dc3545;">*</span></label>
+                        <input type="text" class="form-control" id="companyCnpj" required maxlength="18" placeholder="00.000.000/0000-00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contato Responsável <span style="color: #dc3545;">*</span></label>
+                        <input type="text" class="form-control" id="companyContact" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="companyEmail" placeholder="exemplo@empresa.com.br">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="text" class="form-control" id="companyPhone" maxlength="15" placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Endereço</label>
+                        <textarea class="form-control" id="companyAddress" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status <span style="color: #dc3545;">*</span></label>
+                        <select class="form-control" id="companyStatus" required>
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--secondary" onclick="closeCompanyModal()">Cancelar</button>
+                <button class="btn btn--primary" onclick="saveCompany()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal hidden" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="projectModalTitle">Novo Projeto</h5>
+                <button class="btn-close" onclick="closeProjectModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="projectForm">
+                    <input type="hidden" id="projectId">
+                    <div class="form-group">
+                        <label class="form-label">Empresa <span style="color: #dc3545;">*</span></label>
+                        <select class="form-control" id="projectCompany" required>
+                            <option value="">Selecione uma empresa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nome do Projeto <span style="color: #dc3545;">*</span></label>
+                        <input type="text" class="form-control" id="projectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" id="projectDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Owner/Responsável <span style="color: #dc3545;">*</span></label>
+                        <input type="text" class="form-control" id="projectOwner" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Área Responsável <span style="color: #dc3545;">*</span></label>
+                        <select class="form-control" id="projectArea" required>
+                            <option value="">Selecione uma área</option>
+                            <option value="Customer Success">Customer Success</option>
+                            <option value="Implantação">Implantação</option>
+                            <option value="Sustentação">Sustentação</option>
+                            <option value="Produto">Produto</option>
+                            <option value="Cliente">Cliente</option>
+                            <option value="Usabilidade">Usabilidade</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Data de Início <span style="color: #dc3545;">*</span></label>
+                            <input type="date" class="form-control" id="projectStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Data de Fim <span style="color: #dc3545;">*</span></label>
+                            <input type="date" class="form-control" id="projectEndDate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Status <span style="color: #dc3545;">*</span></label>
+                            <select class="form-control" id="projectStatus" required>
+                                <option value="Aguardando início">Aguardando início</option>
+                                <option value="Em Análise">Em Análise</option>
+                                <option value="Andamento">Andamento</option>
+                                <option value="Atrasada">Atrasada</option>
+                                <option value="Concluída">Concluída</option>
+                                <option value="Declinada">Declinada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prioridade <span style="color: #dc3545;">*</span></label>
+                            <select class="form-control" id="projectPriority" required>
+                                <option value="Baixa">Baixa</option>
+                                <option value="Média">Média</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ticket</label>
+                        <input type="text" class="form-control" id="projectTicket">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Observações/Notas</label>
+                        <textarea class="form-control" id="projectNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--secondary" onclick="closeProjectModal()">Cancelar</button>
+                <button class="btn btn--primary" onclick="saveProject()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
